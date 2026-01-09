@@ -54,10 +54,6 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
         // Send to Privy API with sponsor: true
         const privyRpcUrl = `https://api.privy.io/v1/solana/rpc/${process.env.PRIVY_APP_ID}`;
 
-        console.log('[Gasless] Privy RPC URL:', privyRpcUrl);
-        console.log('[Gasless] App ID:', process.env.PRIVY_APP_ID);
-        console.log('[Gasless] App Secret (first 10 chars):', process.env.PRIVY_APP_SECRET?.substring(0, 10) + '...');
-
         const response = await fetch(privyRpcUrl, {
           method: 'POST',
           headers: {
@@ -84,21 +80,19 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
         // Check if response is OK
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('[Gasless] Privy RPC HTTP error:', response.status, errorText);
-          throw new Error(`Privy RPC HTTP ${response.status}: ${errorText}`);
+          throw new Error(`Privy HTTP ${response.status}: ${errorText}`);
         }
 
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
           const errorText = await response.text();
-          console.error('[Gasless] Non-JSON response from Privy:', errorText);
-          throw new Error(`Privy returned non-JSON response: ${errorText}`);
+          throw new Error(`Non-JSON response: ${errorText}`);
         }
 
         const result = await response.json();
 
         if (result.error) {
-          throw new Error(result.error.message || JSON.stringify(result.error));
+          throw new Error(`Privy error: ${JSON.stringify(result.error)}`);
         }
 
         const signature = result.result;
@@ -106,7 +100,6 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
         signatures.push(signature);
 
       } catch (txError) {
-        console.error('[Gasless] Transaction error:', txError);
         throw new Error(`Transaction failed: ${txError.message}`);
       }
     }
@@ -120,8 +113,14 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[Gasless] Error:', error);
-    res.status(500).json({ error: error.message || 'Failed to process gasless transaction' });
+    res.status(500).json({
+      error: error.message || 'Failed to process gasless transaction',
+      debug: {
+        appIdConfigured: !!process.env.PRIVY_APP_ID,
+        appSecretConfigured: !!process.env.PRIVY_APP_SECRET,
+        appIdPrefix: process.env.PRIVY_APP_ID?.substring(0, 5) || 'not set',
+      }
+    });
   }
 });
 
