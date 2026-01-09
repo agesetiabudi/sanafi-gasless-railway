@@ -54,6 +54,10 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
         // Send to Privy API with sponsor: true
         const privyRpcUrl = `https://api.privy.io/v1/solana/rpc/${process.env.PRIVY_APP_ID}`;
 
+        console.log('[Gasless] Privy RPC URL:', privyRpcUrl);
+        console.log('[Gasless] App ID:', process.env.PRIVY_APP_ID);
+        console.log('[Gasless] App Secret (first 10 chars):', process.env.PRIVY_APP_SECRET?.substring(0, 10) + '...');
+
         const response = await fetch(privyRpcUrl, {
           method: 'POST',
           headers: {
