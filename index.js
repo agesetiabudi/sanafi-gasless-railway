@@ -58,7 +58,8 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${Buffer.from(`${process.env.PRIVY_APP_ID}:${process.env.PRIVY_APP_SECRET}`).toString('base64')}`,
+            'privy-app-id': process.env.PRIVY_APP_ID,
+            'Authorization': `Bearer ${process.env.PRIVY_APP_SECRET}`,
           },
           body: JSON.stringify({
             jsonrpc: '2.0',
