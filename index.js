@@ -51,14 +51,14 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
     // Process each signed transaction
     for (const signedTxBase64 of signedTx) {
       try {
-        // Send to Privy RPC API with sponsor: true
-        const privyRpcUrl = `https://rpc.privy.io/solana/mainnet-beta/${process.env.PRIVY_APP_ID}`;
+        // Send to Privy API with sponsor: true
+        const privyRpcUrl = `https://api.privy.io/v1/solana/rpc/${process.env.PRIVY_APP_ID}`;
 
         const response = await fetch(privyRpcUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'privy-app-secret': process.env.PRIVY_APP_SECRET,
+            'Authorization': `Basic ${Buffer.from(`${process.env.PRIVY_APP_ID}:${process.env.PRIVY_APP_SECRET}`).toString('base64')}`,
           },
           body: JSON.stringify({
             jsonrpc: '2.0',
