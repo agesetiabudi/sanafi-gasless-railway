@@ -58,7 +58,6 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'privy-app-id': process.env.PRIVY_APP_ID,
             'Authorization': `Bearer ${process.env.PRIVY_APP_SECRET}`,
           },
           body: JSON.stringify({
@@ -69,8 +68,7 @@ app.post('/api/transfer/signed-transaction-gasless', async (req, res) => {
               signedTxBase64,
               {
                 encoding: 'base64',
-                skipPreflight: true,
-                maxRetries: 3,
+                preflightCommitment: 'confirmed',
                 sponsor: true, // Enable gas sponsorship with Privy credits
               }
             ]
